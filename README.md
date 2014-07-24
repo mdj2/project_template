@@ -21,6 +21,10 @@ Install the required packages
     cd project_name
     pip install -r requirements.txt
 
+Change permissions
+
+    chmod 755 manage.py
+
 Edit the local settings file to work with your DB. Get the secret key from the repo manager
 
     cd project_name/settings/local.py.template project_name/settings/local.py
