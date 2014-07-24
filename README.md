@@ -18,6 +18,7 @@ Start a new Django project using this template
 
 Install the required packages
 
+    cd project_name
     pip install -r requirements.txt
 
 Edit the local settings file to work with your DB. Get the secret key from the repo manager
@@ -29,6 +30,8 @@ Sync the database
 
     ./manage.py syncdb
     ./manage.py migrate
+
+NOTE: replace 'project_name' with the name of your project
 
 ## Extras
 
