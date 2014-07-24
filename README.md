@@ -27,13 +27,21 @@ Change permissions
 
 Edit the local settings file to work with your DB. Get the secret key from the repo manager
 
-    cd project_name/settings/local.py.template project_name/settings/local.py
+    mv project_name/settings/local.py.template project_name/settings/local.py
     vi project_name/settings/local.py
 
 Sync the database
 
     ./manage.py syncdb
     ./manage.py migrate
+
+Run the server
+
+    make
+
+or
+
+    ./manage.py runserver
 
 NOTE: replace 'project_name' with the name of your project
 
