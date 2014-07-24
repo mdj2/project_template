@@ -1,4 +1,4 @@
-# Quick Template
+# Project Template
 
 ## Introduction
 
@@ -7,10 +7,17 @@ Simply clone this repo, follow the installation instructions, rename the project
 
 ## Installation
 
-Make a virtual environment and install the required packages
+Make a virtual environment
 
     virtualenv --no-site-packages .env
     source .env/bin/activate
+
+Start a new Django project using this template
+
+    django-admin.py startproject --template=https://github.com/kfarr2/project_template.git YOUR_PROJECT_NAME
+
+Install the required packages
+
     pip install -r requirements.txt
 
 Edit the local settings file to work with your DB. Get the secret key from the repo manager
