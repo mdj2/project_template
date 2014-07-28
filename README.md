@@ -3,7 +3,7 @@
 ## Introduction
 
 Quick Start Template for ARC projects.
-Simply clone this repo, follow the installation instructions, rename the project and app files, and get to work!
+No need to download! Just follow the instructions below.
 
 ## Installation
 
