@@ -7,28 +7,21 @@ No need to download! Just follow the instructions below.
 
 ## Installation
 
-Make a virtual environment
+Start a new Django project using this template
+
+    project_name="lame"
+    django-admin.py startproject --name=project_name.conf,README.md,Makefile --extension=template,py --template=https://github.com/PSU-OIT-ARC/project_template/archive/master.zip $project_name
+
+    cd $project_name
 
     virtualenv --no-site-packages .env
     source .env/bin/activate
-
-Start a new Django project using this template
-
-    django-admin.py startproject --name=project_name.conf,README.md,Makefile --template=https://github.com/PSU-OIT-ARC/project_template/archive/master.zip project_name
-
-Install the required packages
-
-    cd {{ project_name }}
     pip install -r requirements.txt
 
-Change permissions
+    chmod +x ./manage.py
 
-    chmod 755 manage.py
-
-Edit the local settings file to work with your DB. Get the secret key from the repo manager
-
-    mv {{ project_name }}/settings/local.py.template {{ project_name }}/settings/local.py
-    vi {{ project_name }}/settings/local.py
+    mv $project_name/settings/local.py.template $project_name/settings/local.py
+    vi $project_name/settings/local.py
 
 Sync the database
 
