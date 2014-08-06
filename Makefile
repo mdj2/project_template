@@ -1,4 +1,4 @@
-.PHONY: clean run test
+.PHONY: run clean test coverage reload
 
 # run the django web server
 run:
@@ -7,6 +7,7 @@ run:
 # remove pyc junk
 clean:
 	find -iname "*.pyc" -delete
+	find -iname "__pycache__" -delete
 
 # run the unit tests
 # use `make test test=path.to.test` if you want to run a specific test
@@ -14,5 +15,8 @@ test:
 	./manage.py test $(test)
 
 # run the unit tests using coverage
-cover:
+coverage:
 	coverage run ./manage.py test && coverage html
+
+reload:
+	./manage.py migrate && ./manage.py collectstatic --noinput && touch {{ project_name }}/wsgi.py

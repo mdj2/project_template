@@ -14,11 +14,11 @@ Make a virtual environment
 
 Start a new Django project using this template
 
-    django-admin.py startproject --template=https://github.com/kfarr2/project_template/archive/master.zip project_name
+    django-admin.py startproject --name=README.md --name=Makefile --template=https://github.com/PSU-OIT-ARC/project_template/archive/master.zip project_name
 
 Install the required packages
 
-    cd project_name
+    cd {{ project_name }}
     pip install -r requirements.txt
 
 Change permissions
@@ -27,8 +27,8 @@ Change permissions
 
 Edit the local settings file to work with your DB. Get the secret key from the repo manager
 
-    mv project_name/settings/local.py.template project_name/settings/local.py
-    vi project_name/settings/local.py
+    mv {{ project_name }}/settings/local.py.template {{ project_name }}/settings/local.py
+    vi {{ project_name }}/settings/local.py
 
 Sync the database
 
@@ -42,8 +42,6 @@ Run the server
 or
 
     ./manage.py runserver
-
-NOTE: replace 'project_name' with the name of your project
 
 ## Extras
 

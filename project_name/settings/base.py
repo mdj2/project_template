@@ -1,17 +1,8 @@
-"""
-Django settings for {{ project_name }} project.
-
-For more information on this file, see
-https://docs.djangoproject.com/en/1.6/topics/settings/
-
-For the full list of settings and their values, see
-https://docs.djangoproject.com/en/1.6/ref/settings/
-"""
-
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+from fnmatch import fnmatch
 from django.core.urlresolvers import reverse_lazy
-from django.conf.global_settings import TEMPLATE_CONTEXT_PROCESSORS as TCP, LOGGING
+from django.contrib.messages import constants as messages
+from django.conf.global_settings import TEMPLATE_CONTEXT_PROCESSORS as TCP, LOGGING, AUTHENTICATION_BACKENDS
 try:
     import pymysql
     pymysql.install_as_MySQLdb()
@@ -21,23 +12,60 @@ except ImportError: # pragma: no cover
 here = lambda *path: os.path.normpath(os.path.join(os.path.dirname(__file__), *path))
 ROOT = lambda *path: here("../../", *path)
 
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))
-
 ALLOWED_HOSTS = []
 
-LOGIN_URL = reverse_lazy("home")
-LOGIN_REDIRECT_URL = reverse_lazy("users-home")
+DEFAULT_FROM_EMAIL = SERVER_EMAIL = 'no-reply@pdx.edu'
+
+# in test mode?
+TEST = False
+
+#LOGIN_URL = reverse_lazy("home")
+#LOGIN_REDIRECT_URL = reverse_lazy("users-home")
+#LOGOUT_URL = reverse_lazy("home")
+
+# uncomment to use celery, also update celery.py, and requirements.txt
+#BROKER_URL = 'amqp://guest:guest@localhost//'
+#CELERY_ACKS_LATE = True
+#CELERY_RESULT_BACKEND = 'amqp'
+
+# uncomment to use CAS. You need to update requirements.txt too
+# CAS_SERVER_URL = 'https://sso.pdx.edu/cas/'
+# AUTHENTICATION_BACKENDS += ('djangocas.backends.CASBackend',)
+
+
+AUTH_USER_MODEL = 'users.User'
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+MESSAGE_TAGS = {
+    messages.ERROR: 'danger',
+}
+
+# allow the use of wildcards in the INTERAL_IPS setting
+class IPList(list):
+    # do a unix-like glob match
+    # E.g. '192.168.1.100' would match '192.*'
+    def __contains__(self, ip): # pragma: no cover
+        for ip_pattern in self:
+            if fnmatch(ip, ip_pattern):
+                return True
+        return False
+
+INTERNAL_IPS = IPList(['10.*', '192.168.*'])
 
 
 # Application definition
 
 INSTALLED_APPS = (
     'django.contrib.admin',
-    'django.contrib.auth',
+    #'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'bootstrapform',
+    'arc',
+    '{{ project_name }}.users',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -47,6 +75,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # 'djangocas.middleware.CASMiddleware',
 )
 
 ROOT_URLCONF = '{{ project_name }}.urls'
@@ -59,11 +88,11 @@ WSGI_APPLICATION = '{{ project_name }}.wsgi.application'
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Los_Angeles'
 
-USE_I18N = True
+USE_I18N = False
 
-USE_L10N = True
+USE_L10N = False
 
 USE_TZ = True
 
@@ -73,11 +102,13 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+STATIC_ROOT = ROOT("static")
+
 STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    ROOT("static"),
+    here("../", "static"),
 )
 
 MEDIA_URL = '/media/'
@@ -90,7 +121,6 @@ TMP_ROOT = ROOT("tmp")
 
 TEMPLATE_CONTEXT_PROCESSORS = TCP + (
     'django.core.context_processors.request',
-    'django.contrib.messages.context_processors.messages',
 )
 
 TEMPLATE_DIRS = (
