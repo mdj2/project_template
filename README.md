@@ -14,7 +14,7 @@ Make a virtual environment
 
 Start a new Django project using this template
 
-    django-admin.py startproject --name=README.md --name=Makefile --template=https://github.com/PSU-OIT-ARC/project_template/archive/master.zip project_name
+    django-admin.py startproject --name=project_name.conf,README.md,Makefile --template=https://github.com/PSU-OIT-ARC/project_template/archive/master.zip project_name
 
 Install the required packages
 
