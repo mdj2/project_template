@@ -64,7 +64,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'bootstrapform',
-    'arc',
+    'arcutils',
     '{{ project_name }}.users',
 )
 
