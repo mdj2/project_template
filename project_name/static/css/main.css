@@ -38,7 +38,6 @@ body {
     color:#fff;
 }
 
-
 #brand {
     color:#ffffff;
     font-size:22px;
@@ -72,5 +71,6 @@ body {
 #main {
     background-color:#ffffff;
     padding-bottom:16px;
+    padding-top:16px;
 }
 
