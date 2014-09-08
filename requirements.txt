@@ -6,7 +6,6 @@ model-mommy
 pytz
 django-cloak
 setuptools
--e git://github.com/PSU-OIT-ARC/django-bootstrap-form.git#egg=django-bootstrap-form
 -e git://github.com/PSU-OIT-ARC/django-arcutils.git#egg=django-arcutils
 #celery
 #elasticsearch
