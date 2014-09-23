@@ -20,7 +20,7 @@ Start a new Django project using this template
 
     chmod +x ./manage.py
 
-    mv $project_name/settings/local.py.template $project_name/settings/local.py
+    cp $project_name/settings/local.py.template $project_name/settings/local.py
     vi $project_name/settings/local.py
 
 Sync the database
