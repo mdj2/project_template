@@ -1,6 +1,6 @@
 body {
     background-color:#E5E6DE;
-    background-image: url('http://www.pdx.edu/sites/all/themes/pdx_home/images/header/header-1.jpg');
+    background-image: url('../img/header.jpg');
     background-repeat: repeat-x;
 }
 
