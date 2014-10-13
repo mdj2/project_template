@@ -10,7 +10,7 @@ PY3 = MAJOR_VERSION == 3
 
 install_requires = [
     #'celery',
-    # 'django-arcutils',
+    'django-arcutils',
     #'django-cas',
     'django-cloak',
     # 'django-perms',
