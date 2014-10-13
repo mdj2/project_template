@@ -28,6 +28,9 @@ Sync the database
     ./manage.py syncdb
     ./manage.py migrate
 
+NOTE: If you're using make, you can do the initial setup by running
+`make initial-setup`.
+
 Run the server
 
     make
