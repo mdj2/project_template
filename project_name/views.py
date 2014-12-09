@@ -1,9 +1,9 @@
-import os
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.conf import settings
 from django.contrib import messages
 from .users.forms import UserForm
+
 
 def home(request):
     """

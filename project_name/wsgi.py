@@ -12,9 +12,9 @@ site.addsitedir(os.path.join(root, ".env/lib/python%d.%d/site-packages" % sys.ve
 # See http://code.google.com/p/modwsgi/issues/detail?id=112
 new_sys_path = []
 for item in list(sys.path):
-  if item not in prev_sys_path:
-    new_sys_path.append(item)
-    sys.path.remove(item)
+    if item not in prev_sys_path:
+        new_sys_path.append(item)
+        sys.path.remove(item)
 sys.path[:0] = new_sys_path
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", os.path.basename(os.path.dirname(__file__)) + ".settings")
