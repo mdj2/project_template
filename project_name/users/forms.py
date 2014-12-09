@@ -4,6 +4,14 @@ from .models import User
 class UserForm(forms.ModelForm):
     class Meta:
         model = User
+        fields = (
+            'email',
+            'first_name',
+            'last_name',
+            'date_joined',
+            'is_active',
+            'is_staff',
+        )
 
     def save(self, *args, **kwargs):
         self.instance.set_password(self.cleaned_data.pop("password"))
