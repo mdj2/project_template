@@ -1,23 +1,47 @@
 import os
+import sys
 from fnmatch import fnmatch
 from django.core.urlresolvers import reverse_lazy
 from django.contrib.messages import constants as messages
-from django.conf.global_settings import TEMPLATE_CONTEXT_PROCESSORS as TCP, LOGGING, AUTHENTICATION_BACKENDS
-try:
-    import pymysql
-    pymysql.install_as_MySQLdb()
-except ImportError: # pragma: no cover
-    pass
+from django.conf.global_settings import TEMPLATE_CONTEXT_PROCESSORS as TCP, AUTHENTICATION_BACKENDS
+from varlet import variable
 
-here = lambda *path: os.path.normpath(os.path.join(os.path.dirname(__file__), *path))
-ROOT = lambda *path: here("../../", *path)
 
-ALLOWED_HOSTS = []
+PROJECT_DIR = lambda *path: os.path.normpath(os.path.join(os.path.dirname(__file__), *path))
+ROOT = lambda *path: PROJECT_DIR("../", *path)
+
+# SECURITY WARNING: don't run with debug turned on in production!
+# make this True in dev
+DEBUG = variable("DEBUG", default=False)
+TEMPLATE_DEBUG = DEBUG
+
+IN_TEST_MODE = 'test' in sys.argv
+
+ALLOWED_HOSTS = variable("ALLOWED_HOSTS", default="*")
 
 DEFAULT_FROM_EMAIL = SERVER_EMAIL = 'no-reply@pdx.edu'
 
-# in test mode?
-TEST = False
+# List of two-tuples containing your name, and an email [("Joe", "joe@example.com")]
+ADMINS = variable("ADMINS", [])
+
+# the hostname of the site, which will be used to construct absolute URLs
+HOSTNAME = variable("HOSTNAME", default="10.0.0.10:8000")
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': '{{ project_name }}',
+        # the default is fine for dev
+        'USER': variable("DB_USER", default='root'),
+        # the default is fine for dev
+        'PASSWORD': variable("DB_PASSWORD", default=''),
+        # the default is fine for dev
+        'HOST': variable("DB_HOST", default=''),
+        'PORT': '',
+    },
+}
+
+LOGGING_CONFIG = 'arcutils.logging.basic'
 
 #LOGIN_URL = reverse_lazy("home")
 #LOGIN_REDIRECT_URL = reverse_lazy("users-home")
@@ -35,17 +59,20 @@ TEST = False
 
 AUTH_USER_MODEL = 'users.User'
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# In dev: django.core.mail.backends.console.EmailBackend
+# In prod: django.core.mail.backends.smtp.EmailBackend
+EMAIL_BACKEND = variable("EMAIL_BACKEND", default='django.core.mail.backends.console.EmailBackend')
 
 MESSAGE_TAGS = {
     messages.ERROR: 'danger',
 }
 
+
 # allow the use of wildcards in the INTERAL_IPS setting
 class IPList(list):
     # do a unix-like glob match
     # E.g. '192.168.1.100' would match '192.*'
-    def __contains__(self, ip): # pragma: no cover
+    def __contains__(self, ip):  # pragma: no cover
         for ip_pattern in self:
             if fnmatch(ip, ip_pattern):
                 return True
@@ -107,7 +134,7 @@ STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    here("../", "static"),
+    PROJECT_DIR("static"),
 )
 
 MEDIA_URL = '/media/'
@@ -115,8 +142,6 @@ MEDIA_URL = '/media/'
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/var/www/example.com/media/"
 MEDIA_ROOT = ROOT("media")
-
-TMP_ROOT = ROOT("tmp")
 
 TEMPLATE_CONTEXT_PROCESSORS = TCP + (
     'django.core.context_processors.request',
@@ -126,6 +151,15 @@ TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    here('../', "templates"),
+    PROJECT_DIR("templates"),
 )
 
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = variable("SECRET_KEY", os.urandom(64).decode("latin1"))
+
+if IN_TEST_MODE:
+    PASSWORD_HASHERS = (
+        'django.contrib.auth.hashers.MD5PasswordHasher',
+    )
+
+    CELERY_ALWAYS_EAGER = True

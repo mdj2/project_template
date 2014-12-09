@@ -1,2 +1,0 @@
-recursive-include {{ project_name }}/static *
-recursive-include {{ project_name }}/templates *

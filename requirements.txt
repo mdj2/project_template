@@ -1,11 +1,15 @@
-# All dependencies should be listed in setup.py. Editable dependencies
-# should *also* be listed here--i.e., dependent projects you're
-# concurrently working on and/or git-only dependencies.
-
-# In production, [dev] should be removed so that dev-only dependencies
-# aren't installed.
--e .[dev]
-
--e git://github.com/PSU-OIT-ARC/django-arcutils.git#egg=django-arcutils
+varlet
+setuptools
+psycopg2
+django-cloak
+pytz
+git+https://github.com/PSU-OIT-ARC/django-arcutils.git#egg=django-arcutils[logging]
+#elasticsearch
+#python3-ldap
+#celery
 #-e git://github.com/PSU-OIT-ARC/djangocas.git#egg=djangocas
 #-e git://github.com/PSU-OIT-ARC/django-perms.git#egg=permissions
+mock
+model-mommy
+coverage
+flake8
