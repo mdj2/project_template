@@ -1,8 +1,8 @@
-*/settings/local.py
+/variables.py
 *.pyc
-.env
-media/*
-tmp/*
-.coverage
-htmlcov
+/.env
+/media/*
+/tmp/*
+/.coverage
+/htmlcov
 /static
