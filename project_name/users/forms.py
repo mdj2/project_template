@@ -9,7 +9,6 @@ class UserForm(forms.ModelForm):
             'email',
             'first_name',
             'last_name',
-            'date_joined',
             'is_active',
             'is_staff',
         )
