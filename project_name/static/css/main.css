@@ -68,6 +68,10 @@ body {
     color:#6a7f10;
 }
 
+.navbar-nav .open .dropdown-menu {
+    background-color:#ffffff;
+}
+
 #main {
     background-color:#ffffff;
     padding-bottom:16px;
