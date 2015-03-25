@@ -19,9 +19,13 @@ class User(AbstractBaseUser):
         db_table = "user"
         ordering = ['last_name', 'first_name']
 
-    #
+    def __str__(self):
+        if self.last_name and self.first_name:
+            return self.get_full_name()
+        else:
+            return self.email
+
     # These methods are required to work with Django's admin
-    #
     def get_full_name(self):
         return self.last_name + ", " + self.first_name
 
@@ -36,8 +40,9 @@ class User(AbstractBaseUser):
     def has_module_perms(self, app_label):
         return self.is_staff
 
-    def __str__(self):
-        if self.last_name and self.first_name:
-            return self.get_full_name()
-        else:
-            return self.email
+    def can_cloak_as(self, other_user):
+        """
+        This method is used by the `cloak` package to determine if a user is
+        allowed to cloak as another user
+        """
+        return self.is_staff

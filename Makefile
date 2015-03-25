@@ -16,10 +16,15 @@ export PATH:=$(VENV_DIR)/bin:$(PATH):$(PG_DIRS)
 run:
 	$(MANAGE) runserver $(HOST):$(PORT)
 
-install: $(VENV_DIR)
-	psql -c 'create database $(PROJECT_NAME);' postgres
+init:
+	rm -rf $(VENV_DIR)
+	@$(MAKE) $(VENV_DIR)
+	dropdb --if-exists $(PROJECT_NAME)
+	createdb $(PROJECT_NAME)
 	$(MANAGE) migrate
 	$(MANAGE) check
+	# create a dummy user
+	$(MANAGE) loaddata dummy_user.json
 
 clean:
 	find . -iname "*.pyc" -delete
@@ -29,12 +34,15 @@ clean:
 coverage:
 	coverage run $(MANAGE) test && coverage html
 
-reload:
-	$(MANAGE) migrate && \
-		$(MANAGE) collectstatic --noinput && \
-		touch $(PROJECT_NAME)/wsgi.py
+test:
+	$(MANAGE) test
 
-$(VENV_DIR): requirements.txt
+reload:
+	$(MANAGE) migrate
+	$(MANAGE) collectstatic --noinput
+	touch $(PROJECT_NAME)/wsgi.py
+
+$(VENV_DIR):
 	$(PYTHON) -m venv .env
 	curl https://raw.githubusercontent.com/pypa/pip/master/contrib/get-pip.py | python
 	pip install -r requirements.txt

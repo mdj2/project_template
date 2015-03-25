@@ -1,10 +1,14 @@
+{% comment %}
+We need to load the permissions template library so we can access the permission functions defined in perms.py modules
+{% endcomment %}
+{% load permissions %}
 <!DOCTYPE html>
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>{{ project_name }}</title>
+    <title>{% block title %}ARC Project{% endblock %}</title>
 
     <script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
@@ -16,6 +20,9 @@
 <body>
     {% block body %}
 
+        {% comment %}
+        If the user is cloaked as a different user, we display a message indicating it
+        {% endcomment %}
         {% if user.is_cloaked %}
             <div class="alert alert-danger" id="mask-alert">
                 <strong class="text-danger">You are masquerading as {{ user }}</strong>
@@ -42,7 +49,10 @@
                 <div class="container">
                     <div class="container-fluid">
                         <ul class="nav navbar-nav">
-                            <li><a href="#"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+                            <li><a href="{% url 'home' %}">Home</a></li>
+                            {% if user|can_list_users %}
+                                <li><a href="{% url 'users-list' %}">Users</a></li>
+                            {% endif %}
                         </ul>
 
                         <ul class="nav navbar-nav navbar-right">
@@ -50,6 +60,7 @@
                                 <li class="dropdown">
                                     <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-user"></span> Account</a>
                                     <ul class="dropdown-menu">
+                                        <li><a href="{% url 'users-edit' user.pk %}">Profile</a></li>
                                         <li><a href="{% url 'logout' %}">Logout</a></li>
                                     </ul>
                                 </li>
@@ -62,6 +73,10 @@
             </nav>
 
             <div class="container" id="main">
+                {% comment %}
+                Show the messages that were set with `django.contrib.messages`
+                {% endcomment %}
+
                 {% if messages %}
                     {% for message in messages %}
                         <div {% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %}>{{ message }}</div>

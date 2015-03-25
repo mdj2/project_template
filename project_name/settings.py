@@ -1,5 +1,4 @@
 import os
-import sys
 from fnmatch import fnmatch
 from django.core.urlresolvers import reverse_lazy
 from django.contrib.messages import constants as messages
@@ -7,25 +6,86 @@ from django.conf.global_settings import TEMPLATE_CONTEXT_PROCESSORS as TCP, AUTH
 from varlet import variable
 
 
-PROJECT_DIR = lambda *path: os.path.normpath(os.path.join(os.path.dirname(__file__), *path))
-ROOT = lambda *path: PROJECT_DIR("../", *path)
+#
+# Path constructors
+#
+
+DJANGO_DIR = lambda *path: os.path.normpath(os.path.join(os.path.dirname(__file__), *path))
+BASE_DIR = lambda *path: DJANGO_DIR("../", *path)
+
+#
+# System and Debugging
+#
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # make this True in dev
 DEBUG = variable("DEBUG", default=False)
 TEMPLATE_DEBUG = DEBUG
-
-IN_TEST_MODE = 'test' in sys.argv
-
-ALLOWED_HOSTS = variable("ALLOWED_HOSTS", default="*")
-
 DEFAULT_FROM_EMAIL = SERVER_EMAIL = 'no-reply@pdx.edu'
+# allow the use of wildcards in the INTERAL_IPS setting
+class IPList(list):
+    # do a unix-like glob match
+    # E.g. '192.168.1.100' would match '192.*'
+    def __contains__(self, ip):
+        return any(fnmatch(ip, ip_pattern) for ip_pattern in self)
+INTERNAL_IPS = IPList(['10.*', '192.168.*'])
+ADMINS = variable("ADMINS", default=[("Matt", "foo@example.com")])
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = variable("SECRET_KEY", os.urandom(64).decode("latin1"))
 
-# List of two-tuples containing your name, and an email [("Joe", "joe@example.com")]
-ADMINS = variable("ADMINS", [])
+#
+# Host info
+#
 
-# the hostname of the site, which will be used to construct absolute URLs
-HOSTNAME = variable("HOSTNAME", default="10.0.0.10:8000")
+# This hostname is used to construct URLs. It would be something like
+# "example.com" in production. This is used to construct the
+# SESSION_COOKIE_DOMAIN and ALLOWED_HOSTS, so make sure it is correct
+HOSTNAME = variable("HOSTNAME", default="10.0.0.10.xip.io:8000")
+# we construct the SESSION_COOKIE_DOMAIN based on the hostname. We prepend a
+# dot so the cookie is set for all subdomains
+SESSION_COOKIE_DOMAIN = "." + HOSTNAME.split(":")[0]
+ALLOWED_HOSTS = [SESSION_COOKIE_DOMAIN]
+
+#
+# Test Stuff
+#
+
+# we use a custom test runner to set some custom settings
+TEST_RUNNER = '{{ project_name }}.testrunner.TestRunner'
+# are we in test mode? This gets overridden in the test runnner
+TEST = False
+
+#
+# Auth Stuff
+#
+
+AUTH_USER_MODEL = 'users.User'
+LOGIN_URL = reverse_lazy("login")
+LOGIN_REDIRECT_URL = reverse_lazy("users-home")
+# uncomment to use CAS. You need to update requirements.txt too
+# CAS_SERVER_URL = 'https://sso.pdx.edu/cas/'
+# AUTHENTICATION_BACKENDS += ('djangocas.backends.CASBackend',)
+
+#
+# Celery
+#
+
+# CELERY_ACKS_LATE = True
+# CELERY_RESULT_BACKEND = 'amqp'
+# The celery broker URL 'amqp://guest:guest@localhost//'
+# BROKER_URL = variable("BROKER_URL", default='amqp://guest:guest@localhost//')
+
+
+#
+# Email
+#
+
+# In production, use something like 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = variable("EMAIL_BACKEND", default='django.core.mail.backends.console.EmailBackend')
+
+#
+# DB
+#
 
 DATABASES = {
     'default': {
@@ -38,58 +98,35 @@ DATABASES = {
         # the default is fine for dev
         'HOST': variable("DB_HOST", default=''),
         'PORT': '',
+        'ATOMIC_REQUESTS': True,
     },
 }
 
 LOGGING_CONFIG = 'arcutils.logging.basic'
 
-#LOGIN_URL = reverse_lazy("home")
-#LOGIN_REDIRECT_URL = reverse_lazy("users-home")
-#LOGOUT_URL = reverse_lazy("home")
-
-# uncomment to use celery, also update celery.py, and requirements.txt
-#BROKER_URL = 'amqp://guest:guest@localhost//'
-#CELERY_ACKS_LATE = True
-#CELERY_RESULT_BACKEND = 'amqp'
-
-# uncomment to use CAS. You need to update requirements.txt too
-# CAS_SERVER_URL = 'https://sso.pdx.edu/cas/'
-# AUTHENTICATION_BACKENDS += ('djangocas.backends.CASBackend',)
-
-
-AUTH_USER_MODEL = 'users.User'
-
-# In dev: django.core.mail.backends.console.EmailBackend
-# In prod: django.core.mail.backends.smtp.EmailBackend
-EMAIL_BACKEND = variable("EMAIL_BACKEND", default='django.core.mail.backends.console.EmailBackend')
+#
+# UI
+#
 
 MESSAGE_TAGS = {
     messages.ERROR: 'danger',
 }
 
-
-# allow the use of wildcards in the INTERAL_IPS setting
-class IPList(list):
-    # do a unix-like glob match
-    # E.g. '192.168.1.100' would match '192.*'
-    def __contains__(self, ip):  # pragma: no cover
-        for ip_pattern in self:
-            if fnmatch(ip, ip_pattern):
-                return True
-        return False
-
-INTERNAL_IPS = IPList(['10.*', '192.168.*'])
+ITEMS_PER_PAGE = 100
 
 
 # Application definition
 
 INSTALLED_APPS = (
     'django.contrib.admin',
-    #'django.contrib.auth',
+    # auth doesn't have to be installed to use the django auth stuff. It adds a
+    # bunch of annoying group and permission tables
+    # 'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'permissions',
     'arcutils',
     '{{ project_name }}.users',
 )
@@ -101,6 +138,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'cloak.middleware.CloakMiddleware',
     # 'djangocas.middleware.CASMiddleware',
 )
 
@@ -108,40 +146,34 @@ ROOT_URLCONF = '{{ project_name }}.urls'
 
 WSGI_APPLICATION = '{{ project_name }}.wsgi.application'
 
-
-# Internationalization
-# https://docs.djangoproject.com/en/1.6/topics/i18n/
+#
+# I18n and Time
+#
 
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'America/Los_Angeles'
-
 USE_I18N = False
-
 USE_L10N = False
-
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.6/howto/static-files/
+#
+# Static files and media
+#
 
 STATIC_URL = '/static/'
-
-STATIC_ROOT = ROOT("static")
-
 STATICFILES_DIRS = (
-    # Put strings here, like "/home/html/static" or "C:/www/django/static".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
-    PROJECT_DIR("static"),
+    DJANGO_DIR("static"),
 )
+STATIC_ROOT = BASE_DIR("static")
 
 MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR("media")
 
-# Absolute filesystem path to the directory that will hold user-uploaded files.
-# Example: "/var/www/example.com/media/"
-MEDIA_ROOT = ROOT("media")
+
+#
+# Templates
+#
 
 TEMPLATE_CONTEXT_PROCESSORS = TCP + (
     'django.core.context_processors.request',
@@ -151,15 +183,5 @@ TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    PROJECT_DIR("templates"),
+    DJANGO_DIR("templates"),
 )
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = variable("SECRET_KEY", os.urandom(64).decode("latin1"))
-
-if IN_TEST_MODE:
-    PASSWORD_HASHERS = (
-        'django.contrib.auth.hashers.MD5PasswordHasher',
-    )
-
-    CELERY_ALWAYS_EAGER = True
