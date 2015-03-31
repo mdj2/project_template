@@ -6,12 +6,17 @@ from django.core.urlresolvers import reverse
 
 from .models import User
 from .forms import UserForm
+from .views import detail
+from .perms import permissions
 
 
 class DetailViewTest(TestCase):
     """
     Tests for the detail view
     """
+    def test_permission(self):
+        self.assertTrue(permissions.entry_for_view(detail, 'can_view_user'))
+
     def test_get(self):
         user = prepare(User)
         user.set_password("foobar")
