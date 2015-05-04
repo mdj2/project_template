@@ -17,5 +17,7 @@ class TestRunner(DiscoverRunner):
             'django.contrib.auth.hashers.MD5PasswordHasher',
         )
 
-        super().run_tests(*args, **kwargs)
+        to_return = super().run_tests(*args, **kwargs)
         shutil.rmtree(media_root)
+        
+        return to_return
